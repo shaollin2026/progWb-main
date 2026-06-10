@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Página Inicial</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+</head>
+
+<body>
+    
+    <header>
+        <div class="logo"> Libreoteca </div> 
+        <div class="buscar"> 
+            <input type="text" placeholder="Pesquise um livro aqui">
+            <button> Buscar</button>
+        </div>
+        <div class="menu-usuario"> Perfil</div>
+    </header>
+
+    <nav>
+        <button>Humanas</button>
+        <button>Saúde</button>
+        <button>Exatas</button>
+        <button>Artes</button>
+    </nav>
+
+    <section class="categoria">
+        <h2>Destaques</h2>
+        <div class="prateleira">
+            <div class="card" th:each="livro :${livros}">
+
+                <a th:href="@{/Livro/{id}(id=${livro.id})}">
+                    <img th:src="${livro.capaUrl}" alt="Capa">
+                    <h3 th:text="${livro.titulo}">Título</h3>
+                    <p th:text="${livro.autor}">Autor</p>
+
+                </a>
+            </div>
+        </div>
+
+    </section>
+
+</body>
+</html>
