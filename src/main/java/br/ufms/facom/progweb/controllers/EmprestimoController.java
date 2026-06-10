@@ -13,10 +13,11 @@ public class EmprestimoController {
         this.emprestimoService = emprestimoService;
     }
 
-    @PostMapping("/{livroId}/usuario/{usuarioId}")
-    public Emprestimo emprestarLivro(@PathVariable Long livroId,
-                                     @PathVariable Long usuarioId,
-                                     @RequestParam int dias) {
+    // Registrar empréstimo
+    @PostMapping("/usuario/{usuarioId}/livro/{livroId}")
+    public Emprestimo emprestarLivro(@PathVariable Long usuarioId,
+                                     @PathVariable Long livroId,
+                                     @RequestParam(defaultValue = "7") int dias) {
         return emprestimoService.emprestarLivro(usuarioId, livroId, dias);
     }
 }

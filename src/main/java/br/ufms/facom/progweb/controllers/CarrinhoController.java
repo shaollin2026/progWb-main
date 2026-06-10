@@ -1,44 +1,45 @@
 package br.ufms.facom.progweb.controllers;
 
-import br.ufms.facom.progweb.models.Livro;
-import br.ufms.facom.progweb.repositories.LivroRepository;
+import br.ufms.facom.progweb.models.Carrinho;
+import br.ufms.facom.progweb.services.CarrinhoService;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/carrinho")
 public class CarrinhoController {
+    private final CarrinhoService carrinhoService;
 
-    private final LivroRepository livroRepository;
-    private final List<Livro> carrinho = new ArrayList<>();
-
-    public CarrinhoController(LivroRepository livroRepository) {
-        this.livroRepository = livroRepository;
+    public CarrinhoController(CarrinhoService carrinhoService) {
+        this.carrinhoService = carrinhoService;
     }
 
-    @PostMapping("/adicionar/{livroId}")
-    public List<Livro> adicionarLivro(@PathVariable Long livroId) {
-        Livro livro = livroRepository.findById(livroId)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
-        carrinho.add(livro);
-        return carrinho;
+    // Criar carrinho para um usuário
+    @PostMapping("/usuario/{usuarioId}")
+    public Carrinho criarCarrinho(@PathVariable Long usuarioId) {
+        return carrinhoService.criarCarrinho(usuarioId);
     }
 
-    @GetMapping
-    public List<Livro> listarCarrinho() {
-        return carrinho;
+    // Buscar carrinho por ID
+    @GetMapping("/{id}")
+    public Optional<Carrinho> buscarCarrinho(@PathVariable Long id) {
+        return carrinhoService.buscarPorId(id);
     }
 
-    @DeleteMapping("/remover/{livroId}")
-    public List<Livro> removerLivro(@PathVariable Long livroId) {
-        carrinho.removeIf(l -> l.getId().equals(livroId));
-        return carrinho;
+    // Atualizar carrinho (adicionar/remover livros)
+    @PutMapping("/{id}")
+    public Carrinho atualizarCarrinho(@PathVariable Long id, @RequestBody Carrinho carrinhoAtualizado) {
+        Carrinho carrinho = carrinhoService.buscarPorId(id)
+                .orElseThrow(() -> new RuntimeException("Carrinho não encontrado"));
+
+        carrinho.setLivrosIds(carrinhoAtualizado.getLivrosIds());
+        return carrinhoService.salvar(carrinho);
     }
 
-    @DeleteMapping("/limpar")
-    public void limparCarrinho() {
-        carrinho.clear();
+    // Deletar carrinho
+    @DeleteMapping("/{id}")
+    public void deletarCarrinho(@PathVariable Long id) {
+        carrinhoService.deletar(id);
     }
 }
