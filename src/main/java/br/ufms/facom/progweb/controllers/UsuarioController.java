@@ -1,37 +1,49 @@
 package br.ufms.facom.progweb.controllers;
 
-import br.ufms.facom.progweb.models.Usuario;
 import br.ufms.facom.progweb.services.UsuarioService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import br.ufms.facom.progweb.models.Usuario;
 
-import java.util.List;
-
-@RestController
-@RequestMapping("/usuarios")
+@Controller
 public class UsuarioController {
-    private final UsuarioService usuarioService;
 
-    public UsuarioController(UsuarioService usuarioService) {
-        this.usuarioService = usuarioService;
+    @GetMapping("/login")
+    public String login(){
+        return "/login";
     }
-
-    @GetMapping
-    public List<Usuario> listarTodos() {
-        return usuarioService.listarTodos();
+    @GetMapping("/cadastro")
+    public String cadastroForm(Model model){
+        model.addAttribute("usuario", new Usuario());
+        return "/cadastro";
     }
-
-    @GetMapping("/{id}")
-    public Usuario buscarPorId(@PathVariable Long id) {
-        return usuarioService.buscarPorId(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+    @PostMapping("/cadastro")
+    public String cadastrar(Usuario usuario){
+        usuarioService.salvar(usuario);
+        return "redirect:/login";
     }
+    @Autowired
+    private UsuarioService usuarioService;
 
-    @PostMapping
-    public Usuario salvar(@RequestBody Usuario usuario) {
-        return usuarioService.salvar(usuario);
+    @GetMapping("/usuarios/editar/{id}")
+    public String editar(@PathVariable Long id, Model model){
+        model.addAttribute("usuario", usuarioService.buscarPorId(id));
+        return "usuarios/form";
     }
-
-    @DeleteMapping("/{id}")
-    public void deletar(@PathVariable Long id) {
+    @PostMapping("/usuarios/editar/{id}")
+    public String atualizar(@PathVariable Long id, Usuario usuario){
+        usuarioService.atualizar(id, usuario);
+        return "redirect:/usuarios";
+    }
+    @GetMapping("/usuarios")
+    public String listar(Model model){model.addAttribute("usuarios", usuarioService.listarTodos());
+        return "usuarios/lista";
+    }
+    @GetMapping("/usuarios/excluir/{id}")
+    public String excluir(@PathVariable Long id){
         usuarioService.deletar(id);
+        return "redirect:/usuarios";
     }
 }

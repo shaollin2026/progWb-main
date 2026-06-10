@@ -11,11 +11,6 @@ import org.springframework.ui.Model;
 @Controller
 public class HomeController {
 
-    @GetMapping("/login")
-    public String login() {
-        return "login";
-    }
-    
     @Autowired
     private LivroService livroService;
     @GetMapping("/")
