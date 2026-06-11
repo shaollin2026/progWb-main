@@ -1,10 +1,11 @@
 package br.ufms.facom.progweb.repositories;
 
-import br.ufms.facom.progweb.models.Usuario;
+import java.util.Optional;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
-import java.util.Optional;
+import br.ufms.facom.progweb.models.Usuario;
 
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Long> {

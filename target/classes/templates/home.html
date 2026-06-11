@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Página Inicial - Libreoteca</title>
+    <link rel="stylesheet" th:href="@{/css/home.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    
+    <header>
+        <div class="logo">Libreoteca</div> 
+        
+        <form th:action="@{/}" method="get" class="buscar"> 
+            <input type="text" name="termo" th:value="${termo}" placeholder="Pesquise um livro aqui">
+            <button type="submit">Buscar</button>
+        </form>
+        
+        <div>
+            <div th:if="${session.usuarioLogado != null}" class="usuario-menu">
+                <button class="usuario-btn">
+                    Olá, <span th:text="${session.usuarioLogado.nome}">User</span> ▾
+                </button>
+                <div class="dropdown-conteudo">
+                    <a th:if="${session.usuarioLogado.role.name() == 'ADMIN'}" th:href="@{/livros/novo}">
+                        ⚙️ Adicionar Livros
+                    </a>
+                    <div th:if="${session.usuarioLogado.role.name() == 'ADMIN'}" class="divisor"></div>
+                    
+                    <a th:href="@{/carrinho}">🛒 Meu Carrinho</a>
+                    <div class="divisor"></div>
+                    <a th:href="@{/usuarios/logout}" style="color: #d93025;">🚪 Sair da Conta</a>
+                </div>
+            </div>
+
+            <span th:if="${session.usuarioLogado == null}">
+                <a th:href="@{/usuarios/login}" class="btn-entrar">Entrar</a>
+            </span>
+        </div>
+    </header>
+
+    <nav>
+        <button class="btn-categoria active" onclick="filtrarCategoria('todos', this)">Todos</button>
+        <button class="btn-categoria" 
+                th:each="cat : ${categorias}" 
+                th:text="${cat}" 
+                th:attr="onclick=|filtrarCategoria('${cat}', this)|">
+            Categoria
+        </button>
+    </nav>
+
+    <section class="categoria">
+        <h2>Livros Gratuitos</h2>
+        <div class="prateleira">
+            <div class="card" th:each="livro : ${livros}" th:if="${livro.preco &lt; 0.01}" th:data-categoria="${livro.categoria}">
+                <a th:href="@{/Livro/{id}(id=${livro.id})}" class="card-link">
+                    <img th:src="${livro.capaUrl}" alt="Capa">
+                    <h3 th:text="${livro.titulo}">Título</h3>
+                    <p th:text="${livro.autor}">Autor</p>
+                    <span class="preco">Gratuito</span>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <section class="categoria">
+        <h2>Livros Pagos</h2>
+        <div class="prateleira">
+            <div class="card" th:each="livro : ${livros}" th:if="${livro.preco &gt;= 0.01}" th:data-categoria="${livro.categoria}">
+                <div class="card-link">
+                    <img th:src="${livro.capaUrl}" alt="Capa">
+                    <h3 th:text="${livro.titulo}">Título</h3>
+                    <p th:text="${livro.autor}">Autor</p>
+                    <span class="preco" th:text="${'R$ ' + #numbers.formatDecimal(livro.preco, 1, 'POINT', 2, 'COMMA')}">R$ 0,00</span>
+                    
+                    <a th:href="@{/carrinho/adicionar/{id}(id=${livro.id})}" class="btn-carrinho">
+                       + Carrinho
+                    </a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        function filtrarCategoria(categoriaSelecionada, botaoClicado) {
+            document.querySelectorAll('.btn-categoria').forEach(btn => {
+                btn.classList.remove('active');
+            });
+            botaoClicado.classList.add('active');
+
+            document.querySelectorAll('.card').forEach(card => {
+                const categoriaDoLivro = card.getAttribute('data-categoria');
+                if (categoriaSelecionada === 'todos' || categoriaDoLivro === categoriaSelecionada) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

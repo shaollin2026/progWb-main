@@ -1,57 +1,69 @@
 package br.ufms.facom.progweb.controllers;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model; // Importante: Adicione este import
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import br.ufms.facom.progweb.models.Livro;
 import br.ufms.facom.progweb.services.LivroService;
-import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 
-import java.util.List;
-
-@RestController
+@Controller
 @RequestMapping("/livros")
 public class LivroController {
+
     private final LivroService livroService;
 
     public LivroController(LivroService livroService) {
         this.livroService = livroService;
     }
 
-    // Criar livro
-    @PostMapping
-    public Livro criarLivro(@RequestBody Livro livro) {
-        return livroService.salvar(livro);
+    @GetMapping("/novo")
+    public String exibirFormularioCadastro(HttpSession session, Model model) {
+        br.ufms.facom.progweb.models.Usuario usuarioLogado = 
+            (br.ufms.facom.progweb.models.Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null || !usuarioLogado.getRole().name().equals("ADMIN")) {
+            return "redirect:/";
+        }
+
+        // Busca as categorias existentes no banco para preencher o datalist
+        model.addAttribute("categorias", livroService.listarTodasCategorias());
+        
+        return "paginas/livronew";
     }
 
-    // Listar todos
-    @GetMapping
-    public List<Livro> listarLivros() {
-        return livroService.listarTodos();
-    }
+    @PostMapping("/novo")
+    public String processarCadastroLivro(@RequestParam("titulo") String titulo,
+                                         @RequestParam("autor") String autor,
+                                         @RequestParam("anoPublicacao") Integer anoPublicacao,
+                                         @RequestParam("preco") Double preco,
+                                         @RequestParam("categoria") String categoria,
+                                         @RequestParam("capaUrl") String capaUrl,
+                                         @RequestParam("downloadUrl") String downloadUrl,
+                                         HttpSession session) {
 
-    // Buscar por ID
-    @GetMapping("/{id}")
-    public Livro buscarPorId(@PathVariable Long id) {
-        return livroService.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
-    }
+        br.ufms.facom.progweb.models.Usuario usuarioLogado = 
+            (br.ufms.facom.progweb.models.Usuario) session.getAttribute("usuarioLogado");
 
-    // Atualizar livro
-    @PutMapping("/{id}")
-    public Livro atualizarLivro(@PathVariable Long id, @RequestBody Livro livroAtualizado) {
-        Livro livro = livroService.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+        if (usuarioLogado == null || !usuarioLogado.getRole().name().equals("ADMIN")) {
+            return "redirect:/";
+        }
 
-        livro.setTitulo(livroAtualizado.getTitulo());
-        livro.setAutor(livroAtualizado.getAutor());
-        livro.setPreco(livroAtualizado.getPreco());
-        livro.setCategoria(livroAtualizado.getCategoria());
-        livro.setAnoPublicacao(livroAtualizado.getAnoPublicacao());
+        Livro novoLivro = new Livro();
+        novoLivro.setTitulo(titulo);
+        novoLivro.setAutor(autor);
+        novoLivro.setAnoPublicacao(anoPublicacao);
+        novoLivro.setPreco(preco);
+        novoLivro.setCategoria(categoria);
+        novoLivro.setCapaUrl(capaUrl);
+        novoLivro.setDownloadUrl(downloadUrl);
 
-        return livroService.salvar(livro);
-    }
+        livroService.salvar(novoLivro);
 
-    // Deletar livro
-    @DeleteMapping("/{id}")
-    public void deletarLivro(@PathVariable Long id) {
-        livroService.deletar(id);
+        return "redirect:/";
     }
 }

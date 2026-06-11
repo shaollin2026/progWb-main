@@ -1,53 +1,49 @@
 package br.ufms.facom.progweb.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.password.PasswordEncoder;
+import java.util.List;
+import java.util.Optional;
+
 import org.springframework.stereotype.Service;
 
+import br.ufms.facom.progweb.models.Role;
 import br.ufms.facom.progweb.models.Usuario;
 import br.ufms.facom.progweb.repositories.UsuarioRepository;
 
-import java.util.List;
-
 @Service
 public class UsuarioService {
+    private final UsuarioRepository usuarioRepository;
 
-    @Autowired
-    private UsuarioRepository usuarioRepository;
-
-    @Autowired
-    private PasswordEncoder encoder;
-
-    public Usuario buscarPorEmail(String email){
-        return usuarioRepository.findByEmail(email).orElse(null);
+    public UsuarioService(UsuarioRepository usuarioRepository) {
+        this.usuarioRepository = usuarioRepository;
     }
 
-    public List<Usuario> listarTodos(){
+    public List<Usuario> listarTodos() {
         return usuarioRepository.findAll();
     }
-    public void deletar(Long id){
-        if(!usuarioRepository.existsById(id)){
-            throw new RuntimeException("Usuário não encontrado");
+
+    public Optional<Usuario> buscarPorId(Long id) {
+        return usuarioRepository.findById(id);
+    }
+
+    public Usuario salvar(Usuario usuario) {
+        // Regra de negócio: novos cadastros sem papel definido nascem como CLIENTE
+        if (usuario.getId() == null && usuario.getRole() == null) {
+            usuario.setRole(Role.CLIENTE);
         }
+        return usuarioRepository.save(usuario);
+    }
+
+    public void deletar(Long id) {
         usuarioRepository.deleteById(id);
     }
-    public Usuario buscarPorId(Long id){
-        return usuarioRepository.findById(id).orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
+
+    public Optional<Usuario> realizarLogin(String email, String senha) {
+        return usuarioRepository.findByEmail(email)
+                .filter(usuario -> usuario.getSenha().equals(senha));
     }
 
-    public Usuario atualizar(Long id, Usuario usuarioAtualizado){
-        Usuario usuario = buscarPorId(id);
-
-        usuario.setNome(usuarioAtualizado.getNome());
-        usuario.setEmail(usuarioAtualizado.getEmail());
-        return usuarioRepository.save(usuario);
-    }
-    public Usuario salvar(Usuario usuario){
-        if(buscarPorEmail(usuario.getEmail()) !=null){
-            throw new RuntimeException("Email já cadastrado");
-        }
-        usuario.setSenha(encoder.encode(usuario.getSenha()));
-        usuario.setRole("ROLE_USER");
-        return usuarioRepository.save(usuario);
+    // ADICIONE ESTE MÉTODO: Necessário para a validação de e-mail duplicado no cadastro
+    public Optional<Usuario> buscarPorEmail(String email) {
+        return usuarioRepository.findByEmail(email);
     }
 }

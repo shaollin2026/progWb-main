@@ -1,0 +1,43 @@
+body { font-family: 'Roboto', sans-serif; background-color: #f8f9fa; padding: 40px; }
+
+.container-carrinho {
+    max-width: 800px;
+    margin: 0 auto;
+    background: white;
+    padding: 30px;
+    border-radius: 12px;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+}
+
+h2 { color: #01875f; }
+
+.item-carrinho {
+    display: flex;
+    justify-content: space-between;
+    padding: 15px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.finalizar-area {
+    margin-top: 30px;
+    padding-top: 20px;
+    border-top: 2px solid #01875f;
+}
+
+input[type="email"] {
+    width: 100%;
+    padding: 12px;
+    margin: 10px 0;
+    border: 1px solid #dadce0;
+    border-radius: 8px;
+}
+
+button.btn-compra {
+    background-color: #01875f;
+    color: white;
+    padding: 12px 24px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+}

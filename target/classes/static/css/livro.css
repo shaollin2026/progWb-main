@@ -1,0 +1,48 @@
+/* --- Base responsiva para todos os dispositivos --- */
+body {
+    font-family: sans-serif;
+    margin: 0;
+    padding: 0;
+    line-height: 1.6;
+}
+
+.container-detalhes {
+    width: 90%; /* Ocupa 90% da largura em telas pequenas */
+    max-width: 800px; /* Limita a largura em telas grandes */
+    margin: 20px auto;
+    padding: 20px;
+    background: #fff;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+}
+
+/* --- Tabela Responsiva --- */
+table {
+    width: 100%;
+    display: block; /* Permite scroll horizontal se a tabela for larga demais */
+    overflow-x: auto;
+}
+
+/* --- Media Queries (A mágica da responsividade) --- */
+
+/* Telas pequenas (Celulares) */
+@media (max-width: 600px) {
+    h2 { font-size: 1.5em; }
+    
+    /* Faz os inputs e botões ficarem grandes e fáceis de tocar */
+    input, button {
+        padding: 15px !important;
+        font-size: 16px !important;
+    }
+
+    .container-detalhes {
+        width: 95%;
+        padding: 10px;
+    }
+}
+
+/* Telas médias (Tablets) */
+@media (min-width: 601px) and (max-width: 1024px) {
+    .container-detalhes {
+        width: 80%;
+    }
+}

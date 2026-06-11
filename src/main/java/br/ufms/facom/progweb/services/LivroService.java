@@ -1,11 +1,12 @@
 package br.ufms.facom.progweb.services;
 
-import br.ufms.facom.progweb.models.Livro;
-import br.ufms.facom.progweb.repositories.LivroRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+
+import org.springframework.stereotype.Service;
+
+import br.ufms.facom.progweb.models.Livro;
+import br.ufms.facom.progweb.repositories.LivroRepository;
 
 @Service
 public class LivroService {
@@ -31,7 +32,7 @@ public class LivroService {
         livroRepository.deleteById(id);
     }
 
-    // 🔎 Filtros
+    // 🔎 Filtros existentes
     public List<Livro> filtrarPorCategoria(String categoria) {
         return livroRepository.findByCategoria(categoria);
     }
@@ -46,5 +47,12 @@ public class LivroService {
 
     public List<Livro> filtrarPorAno(int ano) {
         return livroRepository.findByAnoPublicacao(ano);
+    }
+
+    public List<Livro> buscarPorTituloOuAutor(String termo) {
+        return livroRepository.findByTituloContainingIgnoreCaseOrAutorContainingIgnoreCaseOrCategoriaContainingIgnoreCase(termo, termo, termo);
+    }
+    public List<String> listarTodasCategorias() {
+        return livroRepository.findAllCategorias();
     }
 }
