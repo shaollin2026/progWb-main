@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Login - Libreoteca</title>
+    <link rel="stylesheet" th:href="@{/css/auth.css}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+<body>
+    <div class="auth-container">
+        <h2>Acessar o Sistema</h2>
+        
+        <div class="erro" th:if="${erro}">
+            <span th:text="${erro}">Erro de Login</span>
+        </div>
+
+        <form th:action="@{/usuarios/login}" method="POST">
+            <div class="form-group">
+                <label>E-mail:</label>
+                <input type="email" name="email" required placeholder="Digite seu e-mail">
+            </div>
+            <div class="form-group">
+                <label>Senha:</label>
+                <input type="password" name="senha" required placeholder="Digite sua senha">
+            </div>
+            <button type="submit">Entrar</button>
+        </form>
+
+        <p>Ainda não tem conta? <a th:href="@{/usuarios/cadastro}">Cadastre-se</a></p>
+    </div>
+</body>
+</html>

@@ -1,7 +1,13 @@
 package br.ufms.facom.progweb.models;
 
-import jakarta.persistence.*;
 import java.util.List;
+
+import jakarta.persistence.ElementCollection;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
 
 @Entity
 public class Carrinho {
@@ -11,8 +17,8 @@ public class Carrinho {
 
     private Long usuarioId;
 
-    @ElementCollection
-    private List<Long> livrosIds; // lista de livros adicionados
+    @ElementCollection(fetch = FetchType.EAGER)
+    private List<Long> livrosIds; 
 
     // Getters e Setters
     public Long getId() { return id; }

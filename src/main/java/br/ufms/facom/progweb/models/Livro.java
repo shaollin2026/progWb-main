@@ -1,6 +1,10 @@
 package br.ufms.facom.progweb.models;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "livros")
@@ -15,6 +19,8 @@ public class Livro {
         private Double preco;
         private String categoria;
         private Integer anoPublicacao;
+        private String capaUrl;      // URL para a imagem da capa do livro
+        private String downloadUrl;  // URL para o arquivo PDF do livro
 
         // Getters e Setters
         public Long getId() {
@@ -63,5 +69,21 @@ public class Livro {
 
         public void setAnoPublicacao(Integer anoPublicacao) {
                 this.anoPublicacao = anoPublicacao;
+        }
+
+        public String getCapaUrl() {
+                return capaUrl;
+        }
+
+        public void setCapaUrl(String capaUrl) {
+                this.capaUrl = capaUrl;
+        }
+
+        public String getDownloadUrl() {
+                return downloadUrl;
+        }
+
+        public void setDownloadUrl(String downloadUrl) {
+                this.downloadUrl = downloadUrl;
         }
 }

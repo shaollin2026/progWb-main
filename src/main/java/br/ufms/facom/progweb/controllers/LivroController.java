@@ -1,57 +1,83 @@
 package br.ufms.facom.progweb.controllers;
 
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping; // Import simplificado
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+
 import br.ufms.facom.progweb.models.Livro;
+import br.ufms.facom.progweb.models.Usuario;
 import br.ufms.facom.progweb.services.LivroService;
-import org.springframework.web.bind.annotation.*;
+import jakarta.servlet.http.HttpSession;
 
-import java.util.List;
-
-@RestController
+@Controller
 @RequestMapping("/livros")
 public class LivroController {
+
     private final LivroService livroService;
 
     public LivroController(LivroService livroService) {
         this.livroService = livroService;
     }
 
-    // Criar livro
-    @PostMapping
-    public Livro criarLivro(@RequestBody Livro livro) {
-        return livroService.salvar(livro);
+    // --- CADASTRO ---
+
+    @GetMapping("/novo")
+    public String exibirFormularioCadastro(HttpSession session, Model model) {
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null || !usuarioLogado.getRole().name().equals("ADMIN")) {
+            return "redirect:/";
+        }
+
+        model.addAttribute("categorias", livroService.listarTodasCategorias());
+        return "paginas/livronew";
     }
 
-    // Listar todos
-    @GetMapping
-    public List<Livro> listarLivros() {
-        return livroService.listarTodos();
+    @PostMapping("/novo")
+    public String processarCadastroLivro(@RequestParam("titulo") String titulo,
+                                         @RequestParam("autor") String autor,
+                                         @RequestParam("anoPublicacao") Integer anoPublicacao,
+                                         @RequestParam("preco") Double preco,
+                                         @RequestParam("categoria") String categoria,
+                                         @RequestParam("capaUrl") String capaUrl,
+                                         @RequestParam("downloadUrl") String downloadUrl,
+                                         HttpSession session) {
+
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
+
+        if (usuarioLogado == null || !usuarioLogado.getRole().name().equals("ADMIN")) {
+            return "redirect:/";
+        }
+
+        Livro novoLivro = new Livro();
+        novoLivro.setTitulo(titulo);
+        novoLivro.setAutor(autor);
+        novoLivro.setAnoPublicacao(anoPublicacao);
+        novoLivro.setPreco(preco);
+        novoLivro.setCategoria(categoria);
+        novoLivro.setCapaUrl(capaUrl);
+        novoLivro.setDownloadUrl(downloadUrl);
+
+        livroService.salvar(novoLivro);
+
+        return "redirect:/";
     }
 
-    // Buscar por ID
-    @GetMapping("/{id}")
-    public Livro buscarPorId(@PathVariable Long id) {
-        return livroService.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
-    }
+    // --- NOVA FUNCIONALIDADE: EXCLUSÃO ---
 
-    // Atualizar livro
-    @PutMapping("/{id}")
-    public Livro atualizarLivro(@PathVariable Long id, @RequestBody Livro livroAtualizado) {
-        Livro livro = livroService.buscarPorId(id)
-                .orElseThrow(() -> new RuntimeException("Livro não encontrado"));
+    @PostMapping("/deletar/{id}")
+    public String deletarLivro(@PathVariable Long id, HttpSession session) {
+        Usuario usuarioLogado = (Usuario) session.getAttribute("usuarioLogado");
 
-        livro.setTitulo(livroAtualizado.getTitulo());
-        livro.setAutor(livroAtualizado.getAutor());
-        livro.setPreco(livroAtualizado.getPreco());
-        livro.setCategoria(livroAtualizado.getCategoria());
-        livro.setAnoPublicacao(livroAtualizado.getAnoPublicacao());
+        // Segurança: Apenas ADMIN pode deletar
+        if (usuarioLogado != null && usuarioLogado.getRole().name().equals("ADMIN")) {
+            livroService.deletar(id); // Certifique-se que este método existe no seu Service
+        }
 
-        return livroService.salvar(livro);
-    }
-
-    // Deletar livro
-    @DeleteMapping("/{id}")
-    public void deletarLivro(@PathVariable Long id) {
-        livroService.deletar(id);
+        return "redirect:/";
     }
 }

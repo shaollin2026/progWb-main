@@ -5,7 +5,7 @@
 </head>
 <body>
     <h1>Cadastrar Usuário</h1>
-    <form th:action="@{/cadastro}" th:object="${usuario}" method="post">
+    <form th:action="@{/usuarios/salvar}" th:object="${usuario}" method="post">
 
     <input type="hidden" th:field="*{id}" />
 
